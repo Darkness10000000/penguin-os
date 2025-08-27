@@ -24,9 +24,41 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				// System colors
+				desktop: {
+					bg: 'hsl(var(--desktop-bg))'
+				},
+				panel: {
+					bg: 'hsl(var(--panel-bg))',
+					fg: 'hsl(var(--panel-fg))'
+				},
+				window: {
+					bg: 'hsl(var(--window-bg))',
+					header: 'hsl(var(--window-header))',
+					border: 'hsl(var(--window-border))'
+				},
+				dock: {
+					bg: 'hsl(var(--dock-bg))',
+					hover: 'hsl(var(--dock-hover))',
+					active: 'hsl(var(--dock-active))'
+				},
+				terminal: {
+					bg: 'hsl(var(--terminal-bg))',
+					fg: 'hsl(var(--terminal-fg))',
+					cursor: 'hsl(var(--terminal-cursor))'
+				},
+				file: {
+					bg: 'hsl(var(--file-bg))',
+					hover: 'hsl(var(--file-hover))',
+					selected: 'hsl(var(--file-selected))'
+				},
+				
+				// UI colors
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -44,6 +76,14 @@ export default {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))'
 				},
+				
+				// Status colors
+				success: 'hsl(var(--success))',
+				warning: 'hsl(var(--warning))',
+				error: 'hsl(var(--error))',
+				info: 'hsl(var(--info))',
+				
+				// Component colors
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
@@ -62,6 +102,20 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			backgroundImage: {
+				'gradient-wallpaper': 'var(--gradient-wallpaper)',
+				'gradient-dock': 'var(--gradient-dock)',
+				'gradient-window': 'var(--gradient-window)'
+			},
+			boxShadow: {
+				'window': 'var(--shadow-window)',
+				'dock': 'var(--shadow-dock)',
+				'panel': 'var(--shadow-panel)'
+			},
+			fontFamily: {
+				'system': 'var(--font-system)',
+				'mono': 'var(--font-mono)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
