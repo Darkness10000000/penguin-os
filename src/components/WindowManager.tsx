@@ -95,19 +95,28 @@ const WindowManager = ({
               {/* Window Controls */}
               <div className="window-controls flex items-center gap-1">
                 <button
-                  onClick={() => onMinimize(window.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMinimize(window.id);
+                  }}
                   className="w-4 h-4 rounded-full bg-yellow-500 hover:bg-yellow-400 transition-colors flex items-center justify-center group"
                 >
                   <Minus className="w-2 h-2 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
                 <button
-                  onClick={() => onMaximize(window.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMaximize(window.id);
+                  }}
                   className="w-4 h-4 rounded-full bg-green-500 hover:bg-green-400 transition-colors flex items-center justify-center group"
                 >
                   <Square className="w-2 h-2 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
                 <button
-                  onClick={() => onClose(window.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClose(window.id);
+                  }}
                   className="w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 transition-colors flex items-center justify-center group"
                 >
                   <X className="w-2 h-2 text-black/60 opacity-0 group-hover:opacity-100 transition-opacity" />
