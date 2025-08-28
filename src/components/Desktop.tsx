@@ -8,7 +8,8 @@ import Terminal from './apps/Terminal';
 import FileExplorer from './apps/FileExplorer';
 import WebBrowser from './apps/WebBrowser';
 import Settings from './apps/Settings';
-import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle } from 'lucide-react';
+import SystemHeart from './apps/SystemHeart';
+import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart } from 'lucide-react';
 
 const Desktop = () => {
   const [windows, setWindows] = useState<Window[]>([]);
@@ -68,6 +69,11 @@ const Desktop = () => {
   };
 
   const apps = [
+    {
+      name: 'System Heart',
+      icon: <Heart className="w-8 h-8 text-pink-500" />,
+      action: () => createWindow('System Heart', 'System Heart - Virtual Companion', <Heart className="w-4 h-4 text-pink-500" />, <SystemHeart />)
+    },
     {
       name: 'Terminal',
       icon: <TerminalIcon className="w-8 h-8" />,
