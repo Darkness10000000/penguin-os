@@ -7,7 +7,8 @@ import { Window } from '@/types/system';
 import Terminal from './apps/Terminal';
 import FileExplorer from './apps/FileExplorer';
 import WebBrowser from './apps/WebBrowser';
-import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings, HelpCircle } from 'lucide-react';
+import Settings from './apps/Settings';
+import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle } from 'lucide-react';
 
 const Desktop = () => {
   const [windows, setWindows] = useState<Window[]>([]);
@@ -84,13 +85,8 @@ const Desktop = () => {
     },
     {
       name: 'Settings',
-      icon: <Settings className="w-8 h-8" />,
-      action: () => createWindow('Settings', 'System Settings', <Settings className="w-4 h-4" />, 
-        <div className="p-6 text-foreground">
-          <h2 className="text-2xl font-bold mb-4">System Settings</h2>
-          <p className="text-muted-foreground">Settings panel coming soon...</p>
-        </div>
-      )
+      icon: <SettingsIcon className="w-8 h-8" />,
+      action: () => createWindow('Settings', 'System Settings', <SettingsIcon className="w-4 h-4" />, <Settings />)
     },
     {
       name: 'About',
@@ -109,7 +105,7 @@ const Desktop = () => {
     <div className="h-screen w-screen overflow-hidden relative bg-desktop-bg">
       {/* Wallpaper */}
       <div 
-        className="absolute inset-0 bg-cover bg-center"
+        className="desktop-background absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${wallpaper})` }}
       />
       
