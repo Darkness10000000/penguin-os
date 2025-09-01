@@ -6,6 +6,7 @@ const Terminal = () => {
   ]);
   const [currentCommand, setCurrentCommand] = useState('');
   const [currentDirectory, setCurrentDirectory] = useState('/home/user');
+  const [sudoMode, setSudoMode] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
 
@@ -22,7 +23,8 @@ const Terminal = () => {
   uname    - Show system information
   cat      - Display file contents
   mkdir    - Create a directory
-  touch    - Create a file`,
+  touch    - Create a file
+  sudo     - Execute with elevated privileges`,
     
     clear: () => {
       setHistory([]);
@@ -69,6 +71,46 @@ const Terminal = () => {
     touch: (args) => {
       if (!args[0]) return 'touch: missing file operand';
       return `File '${args[0]}' created`;
+    },
+    
+    sudo: (args) => {
+      if (!args[0]) return 'sudo: missing command';
+      
+      if (args[0] === 'install' && args[1] === 'systemheart') {
+        // Check if already installed
+        if (localStorage.getItem('systemheart_installed') === 'true') {
+          return 'systemheart is already installed';
+        }
+        
+        // Simulate installation
+        setSudoMode(true);
+        setTimeout(() => {
+          localStorage.setItem('systemheart_installed', 'true');
+          // Dispatch custom event to notify Desktop
+          window.dispatchEvent(new Event('systemheart-installed'));
+          setSudoMode(false);
+        }, 2000);
+        
+        return `Installing systemheart...
+[sudo] password for user: ********
+Reading package lists... Done
+Building dependency tree... Done
+The following NEW packages will be installed:
+  systemheart
+0 upgraded, 1 newly installed, 0 to remove
+Need to get 2.4 MB of archives.
+Get:1 http://repo.penguinos.org/stable systemheart 1.0.0 [2.4 MB]
+Fetched 2.4 MB in 1s (2.4 MB/s)
+Selecting previously unselected package systemheart.
+Unpacking systemheart (1.0.0) ...
+Setting up systemheart (1.0.0) ...
+Processing triggers ...
+
+✓ systemheart has been successfully installed
+✓ New application added to dock`;
+      }
+      
+      return `sudo: ${args.join(' ')}: command not found`;
     }
   };
 

@@ -15,6 +15,9 @@ const Desktop = () => {
   const [windows, setWindows] = useState<Window[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [nextZIndex, setNextZIndex] = useState(1000);
+  const [systemHeartInstalled, setSystemHeartInstalled] = useState(
+    localStorage.getItem('systemheart_installed') === 'true'
+  );
 
   const createWindow = (appName: string, title: string, icon: React.ReactNode, content: React.ReactNode) => {
     const newWindow: Window = {
@@ -69,11 +72,11 @@ const Desktop = () => {
   };
 
   const apps = [
-    {
+    ...(systemHeartInstalled ? [{
       name: 'System Heart',
       icon: <Heart className="w-8 h-8 text-pink-500" />,
       action: () => createWindow('System Heart', 'System Heart - Virtual Companion', <Heart className="w-4 h-4 text-pink-500" />, <SystemHeart />)
-    },
+    }] : []),
     {
       name: 'Terminal',
       icon: <TerminalIcon className="w-8 h-8" />,
@@ -106,6 +109,18 @@ const Desktop = () => {
       )
     }
   ];
+
+  useEffect(() => {
+    const handleSystemHeartInstalled = () => {
+      setSystemHeartInstalled(true);
+    };
+
+    window.addEventListener('systemheart-installed', handleSystemHeartInstalled);
+    
+    return () => {
+      window.removeEventListener('systemheart-installed', handleSystemHeartInstalled);
+    };
+  }, []);
 
   return (
     <div className="h-screen w-screen overflow-hidden relative bg-desktop-bg">
