@@ -23,13 +23,19 @@ const Desktop = () => {
   );
   const [authState, setAuthState] = useState<'login' | 'profile' | 'desktop'>('login');
   const [currentUser, setCurrentUser] = useState('');
+  const [sessionStartTime, setSessionStartTime] = useState<Date>(new Date());
+  const [showProfileFromDesktop, setShowProfileFromDesktop] = useState(false);
   
   // Check if user is already logged in
   useEffect(() => {
     const savedUser = localStorage.getItem('current_user');
+    const savedSessionTime = localStorage.getItem('session_start_time');
     if (savedUser) {
       setCurrentUser(savedUser);
       setAuthState('desktop');
+      if (savedSessionTime) {
+        setSessionStartTime(new Date(savedSessionTime));
+      }
     }
   }, []);
 
@@ -86,20 +92,30 @@ const Desktop = () => {
   };
   
   const handleLogin = (username: string) => {
+    const now = new Date();
     setCurrentUser(username);
+    setSessionStartTime(now);
     localStorage.setItem('current_user', username);
+    localStorage.setItem('session_start_time', now.toISOString());
     setAuthState('profile');
   };
   
   const handleContinueToDesktop = () => {
     setAuthState('desktop');
+    setShowProfileFromDesktop(false);
   };
   
   const handleLogout = () => {
     localStorage.removeItem('current_user');
+    localStorage.removeItem('session_start_time');
     setCurrentUser('');
     setAuthState('login');
     setWindows([]);
+    setShowProfileFromDesktop(false);
+  };
+  
+  const handleProfileClick = () => {
+    setShowProfileFromDesktop(true);
   };
   
   // Function to open text editor with file content
@@ -175,45 +191,63 @@ const Desktop = () => {
         username={currentUser}
         onContinue={handleContinueToDesktop}
         onLogout={handleLogout}
+        sessionStartTime={sessionStartTime}
       />
     );
   }
   
   // Render desktop after profile
   return (
-    <div className="h-screen w-screen overflow-hidden relative bg-desktop-bg">
-      {/* Wallpaper */}
-      <div 
-        className="desktop-background absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${wallpaper})` }}
-      />
-      
-      {/* Gradient overlay for better contrast */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40" />
-      
-      {/* Top Panel */}
-      <TopPanel />
-      
-      {/* Desktop Area */}
-      <div className="absolute inset-0 top-8 bottom-20">
-        <WindowManager
+    <>
+      <div className="h-screen w-screen overflow-hidden relative bg-desktop-bg">
+        {/* Wallpaper */}
+        <div 
+          className="desktop-background absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${wallpaper})` }}
+        />
+        
+        {/* Gradient overlay for better contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40" />
+        
+        {/* Top Panel */}
+        <TopPanel 
+          onProfileClick={handleProfileClick} 
+          currentUser={currentUser}
+        />
+        
+        {/* Desktop Area */}
+        <div className="absolute inset-0 top-8 bottom-20">
+          <WindowManager
+            windows={windows}
+            activeWindowId={activeWindowId}
+            onClose={closeWindow}
+            onMinimize={minimizeWindow}
+            onMaximize={maximizeWindow}
+            onFocus={focusWindow}
+            onUpdatePosition={updateWindowPosition}
+          />
+        </div>
+        
+        {/* Dock */}
+        <Dock 
+          apps={apps}
           windows={windows}
-          activeWindowId={activeWindowId}
-          onClose={closeWindow}
-          onMinimize={minimizeWindow}
-          onMaximize={maximizeWindow}
-          onFocus={focusWindow}
-          onUpdatePosition={updateWindowPosition}
+          onWindowFocus={focusWindow}
         />
       </div>
       
-      {/* Dock */}
-      <Dock 
-        apps={apps}
-        windows={windows}
-        onWindowFocus={focusWindow}
-      />
-    </div>
+      {/* Profile Overlay */}
+      {showProfileFromDesktop && (
+        <div className="fixed inset-0 z-[20000]">
+          <Profile 
+            username={currentUser}
+            onContinue={handleContinueToDesktop}
+            onLogout={handleLogout}
+            sessionStartTime={sessionStartTime}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

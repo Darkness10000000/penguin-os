@@ -6,20 +6,49 @@ import { Badge } from '@/components/ui/badge';
 
 interface ProfileProps {
   username: string;
-  onContinue: () => void;
+  onContinue?: () => void;
   onLogout: () => void;
+  sessionStartTime?: Date;
 }
 
-const Profile = ({ username, onContinue, onLogout }: ProfileProps) => {
-  const [systemInfo, setSystemInfo] = useState({
+const Profile = ({ username, onContinue, onLogout, sessionStartTime = new Date() }: ProfileProps) => {
+  const [systemInfo] = useState({
     osVersion: 'PenguinOS 2.0 LTS',
     uptime: '2 hours, 34 minutes',
     battery: 85,
     network: 'Connected'
   });
 
-  const [loginTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [status] = useState<'Online' | 'Away' | 'Do Not Disturb'>('Online');
+
+  // Calculate session duration
+  const getSessionDuration = () => {
+    const now = currentTime.getTime();
+    const start = sessionStartTime.getTime();
+    const diff = now - start;
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  };
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
 
   const favoriteApps = [
     { name: 'Settings', icon: <Settings className="w-6 h-6" />, action: () => {} },
@@ -72,10 +101,17 @@ const Profile = ({ username, onContinue, onLogout }: ProfileProps) => {
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              Last Login
+              Session Time
             </span>
+            <span className="text-foreground font-mono">
+              {getSessionDuration()}
+            </span>
+          </div>
+          
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Login Time</span>
             <span className="text-foreground">
-              {loginTime.toLocaleString('en-US', { 
+              {sessionStartTime.toLocaleString('en-US', { 
                 hour: '2-digit', 
                 minute: '2-digit',
                 month: 'short',

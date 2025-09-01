@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Wifi, Volume2, Battery, ChevronDown } from 'lucide-react';
+import { Wifi, Volume2, Battery, ChevronDown, User } from 'lucide-react';
 
-const TopPanel = () => {
+interface TopPanelProps {
+  onProfileClick?: () => void;
+  currentUser?: string;
+}
+
+const TopPanel = ({ onProfileClick, currentUser = 'user' }: TopPanelProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -48,8 +53,14 @@ const TopPanel = () => {
         <Wifi className="w-4 h-4" />
         <Volume2 className="w-4 h-4" />
         <Battery className="w-4 h-4" />
-        <button className="flex items-center gap-1 hover:bg-white/10 px-2 py-1 rounded transition-colors">
-          <div className="w-6 h-6 rounded-full bg-primary/80" />
+        <button 
+          onClick={onProfileClick}
+          className="flex items-center gap-1 hover:bg-white/10 px-2 py-1 rounded transition-colors"
+          title={`Profile: ${currentUser}`}
+        >
+          <div className="w-6 h-6 rounded-full bg-primary/80 flex items-center justify-center">
+            <User className="w-3 h-3 text-white" />
+          </div>
           <ChevronDown className="w-3 h-3" />
         </button>
       </div>
