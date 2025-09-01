@@ -3,13 +3,16 @@ import wallpaper from '@/assets/wallpaper.jpg';
 import TopPanel from './TopPanel';
 import Dock from './Dock';
 import WindowManager from './WindowManager';
+import Login from './Login';
+import Profile from './Profile';
 import { Window } from '@/types/system';
 import Terminal from './apps/Terminal';
 import FileExplorer from './apps/FileExplorer';
 import WebBrowser from './apps/WebBrowser';
 import Settings from './apps/Settings';
 import SystemHeart from './apps/SystemHeart';
-import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart } from 'lucide-react';
+import TextEditor from './apps/TextEditor';
+import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText } from 'lucide-react';
 
 const Desktop = () => {
   const [windows, setWindows] = useState<Window[]>([]);
@@ -18,6 +21,17 @@ const Desktop = () => {
   const [systemHeartInstalled, setSystemHeartInstalled] = useState(
     localStorage.getItem('systemheart_installed') === 'true'
   );
+  const [authState, setAuthState] = useState<'login' | 'profile' | 'desktop'>('login');
+  const [currentUser, setCurrentUser] = useState('');
+  
+  // Check if user is already logged in
+  useEffect(() => {
+    const savedUser = localStorage.getItem('current_user');
+    if (savedUser) {
+      setCurrentUser(savedUser);
+      setAuthState('desktop');
+    }
+  }, []);
 
   const createWindow = (appName: string, title: string, icon: React.ReactNode, content: React.ReactNode) => {
     const newWindow: Window = {
@@ -70,6 +84,33 @@ const Desktop = () => {
       w.id === id ? { ...w, position } : w
     ));
   };
+  
+  const handleLogin = (username: string) => {
+    setCurrentUser(username);
+    localStorage.setItem('current_user', username);
+    setAuthState('profile');
+  };
+  
+  const handleContinueToDesktop = () => {
+    setAuthState('desktop');
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem('current_user');
+    setCurrentUser('');
+    setAuthState('login');
+    setWindows([]);
+  };
+  
+  // Function to open text editor with file content
+  const openFileInEditor = (fileName: string, content: string) => {
+    createWindow(
+      'TextEditor',
+      `Text Editor - ${fileName}`,
+      <FileText className="w-4 h-4" />,
+      <TextEditor initialContent={content} fileName={fileName} />
+    );
+  };
 
   const apps = [
     ...(systemHeartInstalled ? [{
@@ -85,7 +126,7 @@ const Desktop = () => {
     {
       name: 'Files',
       icon: <FolderOpen className="w-8 h-8" />,
-      action: () => createWindow('Files', 'File Explorer', <FolderOpen className="w-4 h-4" />, <FileExplorer />)
+      action: () => createWindow('Files', 'File Explorer', <FolderOpen className="w-4 h-4" />, <FileExplorer onOpenFile={openFileInEditor} />)
     },
     {
       name: 'Firefox',
@@ -122,6 +163,23 @@ const Desktop = () => {
     };
   }, []);
 
+  // Render login screen if not authenticated
+  if (authState === 'login') {
+    return <Login onLogin={handleLogin} />;
+  }
+  
+  // Render profile screen after login
+  if (authState === 'profile') {
+    return (
+      <Profile 
+        username={currentUser}
+        onContinue={handleContinueToDesktop}
+        onLogout={handleLogout}
+      />
+    );
+  }
+  
+  // Render desktop after profile
   return (
     <div className="h-screen w-screen overflow-hidden relative bg-desktop-bg">
       {/* Wallpaper */}

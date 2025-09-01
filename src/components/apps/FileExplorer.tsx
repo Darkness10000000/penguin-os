@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { FileItem } from '@/types/system';
 import { File, Folder, Home, ChevronRight, Grid, List, Eye, Lock } from 'lucide-react';
 
-const FileExplorer = () => {
+interface FileExplorerProps {
+  onOpenFile?: (fileName: string, content: string) => void;
+}
+
+const FileExplorer = ({ onOpenFile }: FileExplorerProps) => {
   const [currentPath, setCurrentPath] = useState('/home/user');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
@@ -224,6 +228,8 @@ Forever.`
     setSelectedItem(item.id);
     if (item.type === 'folder') {
       setCurrentPath(item.path);
+    } else if (item.type === 'file' && item.content && onOpenFile) {
+      onOpenFile(item.name, item.content);
     }
   };
 
