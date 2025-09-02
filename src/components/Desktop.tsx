@@ -13,6 +13,7 @@ import Settings from './apps/Settings';
 import SystemHeart from './apps/SystemHeart';
 import TextEditor from './apps/TextEditor';
 import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Desktop = () => {
   const [windows, setWindows] = useState<Window[]>([]);
@@ -91,11 +92,11 @@ const Desktop = () => {
     ));
   };
   
-  const handleLogin = (username: string) => {
+  const handleLogin = (email: string) => {
     const now = new Date();
-    setCurrentUser(username);
+    setCurrentUser(email);
     setSessionStartTime(now);
-    localStorage.setItem('current_user', username);
+    localStorage.setItem('current_user', email);
     localStorage.setItem('session_start_time', now.toISOString());
     setAuthState('profile');
   };
@@ -105,7 +106,8 @@ const Desktop = () => {
     setShowProfileFromDesktop(false);
   };
   
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('current_user');
     localStorage.removeItem('session_start_time');
     setCurrentUser('');
