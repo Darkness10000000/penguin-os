@@ -125,7 +125,7 @@ const WindowManager = ({
             </div>
             
             {/* Window Content */}
-            <div className="h-[calc(100%-2.5rem)] overflow-auto bg-window-bg">
+            <div className="h-[calc(100%-2.5rem)] overflow-hidden bg-window-bg">
               {window.content}
             </div>
           </div>

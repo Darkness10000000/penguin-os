@@ -491,10 +491,10 @@ const WebBrowser = () => {
         </div>
       </div>
 
-      <div className="flex-1 relative overflow-hidden">
-        <ScrollArea className="h-full">
+      <div className="flex-1 overflow-hidden relative">
+        <div className="h-full overflow-auto">
           {renderContent()}
-        </ScrollArea>
+        </div>
         
         {showHistory && (
           <div className="absolute top-0 right-0 w-80 h-full bg-background border-l shadow-lg z-10">
