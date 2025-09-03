@@ -397,11 +397,11 @@ const WebBrowser = () => {
                 onClick={() => updateTab(activeTabId, { viewMode: 'rendered' })}>
                 Rendered
               </Button>
-              <Button size="sm" variant={activeTab.viewMode === 'text' ? 'default' : 'outline'}
+              <Button size="sm" variant={(activeTab.viewMode as string) === 'text' ? 'default' : 'outline'}
                 onClick={() => updateTab(activeTabId, { viewMode: 'text' })}>
                 Text
               </Button>
-              <Button size="sm" variant={activeTab.viewMode === 'links' ? 'default' : 'outline'}
+              <Button size="sm" variant={(activeTab.viewMode as string) === 'links' ? 'default' : 'outline'}
                 onClick={() => updateTab(activeTabId, { viewMode: 'links' })}>
                 Links
               </Button>
