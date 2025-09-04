@@ -76,22 +76,23 @@ const Terminal = () => {
     sudo: (args) => {
       if (!args[0]) return 'sudo: missing command';
       
-      if (args[0] === 'install' && args[1] === 'systemheart') {
-        // Check if already installed
-        if (localStorage.getItem('systemheart_installed') === 'true') {
-          return 'systemheart is already installed';
-        }
-        
-        // Simulate installation
-        setSudoMode(true);
-        setTimeout(() => {
-          localStorage.setItem('systemheart_installed', 'true');
-          // Dispatch custom event to notify Desktop
-          window.dispatchEvent(new Event('systemheart-installed'));
-          setSudoMode(false);
-        }, 2000);
-        
-        return `Installing systemheart...
+      if (args[0] === 'install') {
+        if (args[1] === 'systemheart') {
+          // Check if already installed
+          if (localStorage.getItem('systemheart_installed') === 'true') {
+            return 'systemheart is already installed';
+          }
+          
+          // Simulate installation
+          setSudoMode(true);
+          setTimeout(() => {
+            localStorage.setItem('systemheart_installed', 'true');
+            // Dispatch custom event to notify Desktop
+            window.dispatchEvent(new Event('systemheart-installed'));
+            setSudoMode(false);
+          }, 2000);
+          
+          return `Installing systemheart...
 [sudo] password for user: ********
 Reading package lists... Done
 Building dependency tree... Done
@@ -108,6 +109,48 @@ Processing triggers ...
 
 ✓ systemheart has been successfully installed
 ✓ New application added to dock`;
+        }
+        
+        if (args[1] === 'digital-hearts' || args[1] === 'digitalhearts') {
+          // Check if already installed
+          if (localStorage.getItem('digitalhearts_installed') === 'true') {
+            return 'digital-hearts is already installed';
+          }
+          
+          // Simulate installation
+          setSudoMode(true);
+          setTimeout(() => {
+            localStorage.setItem('digitalhearts_installed', 'true');
+            // Dispatch custom event to notify Desktop
+            window.dispatchEvent(new Event('digitalhearts-installed'));
+            setSudoMode(false);
+          }, 2000);
+          
+          return `Installing digital-hearts...
+[sudo] password for user: ********
+Reading package lists... Done
+Building dependency tree... Done
+The following NEW packages will be installed:
+  digital-hearts (Visual Novel Game)
+0 upgraded, 1 newly installed, 0 to remove
+Need to get 4.8 MB of archives.
+Get:1 http://repo.penguinos.org/games digital-hearts 1.0.0 [4.8 MB]
+Fetched 4.8 MB in 2s (2.4 MB/s)
+Selecting previously unselected package digital-hearts.
+Unpacking digital-hearts (1.0.0) ...
+Setting up digital-hearts (1.0.0) ...
+Creating save directory...
+Installing game assets...
+Processing triggers ...
+
+✓ Digital Hearts VN has been successfully installed
+✓ New game added to dock`;
+        }
+        
+        return `Package not found: ${args[1]}
+Available packages:
+  systemheart     - Virtual AI Companion
+  digital-hearts  - Visual Novel Game`;
       }
       
       return `sudo: ${args.join(' ')}: command not found`;

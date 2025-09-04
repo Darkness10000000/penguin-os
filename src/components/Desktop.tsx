@@ -12,7 +12,8 @@ import WebBrowser from './apps/WebBrowser';
 import Settings from './apps/Settings';
 import SystemHeart from './apps/SystemHeart';
 import TextEditor from './apps/TextEditor';
-import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText } from 'lucide-react';
+import VisualNovel from './apps/VisualNovel';
+import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText, Gamepad2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Desktop = () => {
@@ -21,6 +22,9 @@ const Desktop = () => {
   const [nextZIndex, setNextZIndex] = useState(1000);
   const [systemHeartInstalled, setSystemHeartInstalled] = useState(
     localStorage.getItem('systemheart_installed') === 'true'
+  );
+  const [digitalHeartsInstalled, setDigitalHeartsInstalled] = useState(
+    localStorage.getItem('digitalhearts_installed') === 'true'
   );
   const [authState, setAuthState] = useState<'login' | 'profile' | 'desktop'>('login');
   const [currentUser, setCurrentUser] = useState('');
@@ -136,6 +140,11 @@ const Desktop = () => {
       icon: <Heart className="w-8 h-8 text-pink-500" />,
       action: () => createWindow('System Heart', 'System Heart - Virtual Companion', <Heart className="w-4 h-4 text-pink-500" />, <SystemHeart />)
     }] : []),
+    ...(digitalHeartsInstalled ? [{
+      name: 'Digital Hearts',
+      icon: <Gamepad2 className="w-8 h-8 text-purple-500" />,
+      action: () => createWindow('Digital Hearts', 'Digital Hearts - Visual Novel', <Gamepad2 className="w-4 h-4 text-purple-500" />, <VisualNovel />)
+    }] : []),
     {
       name: 'Terminal',
       icon: <TerminalIcon className="w-8 h-8" />,
@@ -173,11 +182,17 @@ const Desktop = () => {
     const handleSystemHeartInstalled = () => {
       setSystemHeartInstalled(true);
     };
+    
+    const handleDigitalHeartsInstalled = () => {
+      setDigitalHeartsInstalled(true);
+    };
 
     window.addEventListener('systemheart-installed', handleSystemHeartInstalled);
+    window.addEventListener('digitalhearts-installed', handleDigitalHeartsInstalled);
     
     return () => {
       window.removeEventListener('systemheart-installed', handleSystemHeartInstalled);
+      window.removeEventListener('digitalhearts-installed', handleDigitalHeartsInstalled);
     };
   }, []);
 
