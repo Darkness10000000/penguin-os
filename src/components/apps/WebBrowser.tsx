@@ -407,8 +407,27 @@ const WebBrowser = () => {
               </Button>
             </div>
           </div>
-          <iframe srcDoc={activeTab.websiteContent.rawHtml} className="flex-1 w-full"
-            sandbox="allow-same-origin" title={activeTab.websiteContent.title} />
+          {(() => {
+            const srcUrl = activeTab.websiteContent?.url || activeTab.url;
+            const raw = activeTab.websiteContent!.rawHtml || '';
+            let html = raw;
+            if (srcUrl) {
+              if (/<head[^>]*>/i.test(raw)) {
+                html = raw.replace(/<head[^>]*>/i, (m) => `${m}<base href="${srcUrl}">`);
+              } else {
+                html = `<head><base href="${srcUrl}"></head>${raw}`;
+              }
+            }
+            return (
+              <iframe
+                srcDoc={html}
+                className="flex-1 w-full"
+                sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                title={activeTab.websiteContent?.title || activeTab.title}
+              />
+            );
+          })()}
+
         </div>
       );
     }
