@@ -153,7 +153,82 @@ Available packages:
   digital-hearts  - Visual Novel Game`;
       }
       
-      return `sudo: ${args.join(' ')}: command not found`;
+      if (args[0] === 'remove' || args[0] === 'uninstall') {
+        if (args[1] === 'systemheart') {
+          // Check if installed
+          if (localStorage.getItem('systemheart_installed') !== 'true') {
+            return 'systemheart is not installed';
+          }
+          
+          // Simulate removal
+          setSudoMode(true);
+          setTimeout(() => {
+            localStorage.removeItem('systemheart_installed');
+            // Dispatch custom event to notify Desktop
+            window.dispatchEvent(new Event('systemheart-removed'));
+            setSudoMode(false);
+          }, 1500);
+          
+          return `Removing systemheart...
+[sudo] password for user: ********
+Reading package lists... Done
+Building dependency tree... Done
+The following packages will be REMOVED:
+  systemheart
+0 upgraded, 0 newly installed, 1 to remove
+After this operation, 2.4 MB disk space will be freed.
+Do you want to continue? [Y/n] Y
+Removing systemheart (1.0.0) ...
+Purging configuration files for systemheart ...
+Processing triggers ...
+
+✓ systemheart has been successfully removed
+✓ Application removed from dock`;
+        }
+        
+        if (args[1] === 'digital-hearts' || args[1] === 'digitalhearts') {
+          // Check if installed
+          if (localStorage.getItem('digitalhearts_installed') !== 'true') {
+            return 'digital-hearts is not installed';
+          }
+          
+          // Simulate removal
+          setSudoMode(true);
+          setTimeout(() => {
+            localStorage.removeItem('digitalhearts_installed');
+            localStorage.removeItem('vn_save'); // Also remove save data
+            // Dispatch custom event to notify Desktop
+            window.dispatchEvent(new Event('digitalhearts-removed'));
+            setSudoMode(false);
+          }, 1500);
+          
+          return `Removing digital-hearts...
+[sudo] password for user: ********
+Reading package lists... Done
+Building dependency tree... Done
+The following packages will be REMOVED:
+  digital-hearts
+0 upgraded, 0 newly installed, 1 to remove
+After this operation, 4.8 MB disk space will be freed.
+Do you want to continue? [Y/n] Y
+Removing digital-hearts (1.0.0) ...
+Removing save data...
+Purging configuration files for digital-hearts ...
+Processing triggers ...
+
+✓ digital-hearts has been successfully removed
+✓ Game removed from dock`;
+        }
+        
+        return `Package not found: ${args[1]}
+Installed packages:
+${localStorage.getItem('systemheart_installed') === 'true' ? '  systemheart     - Virtual AI Companion\n' : ''}${localStorage.getItem('digitalhearts_installed') === 'true' ? '  digital-hearts  - Visual Novel Game\n' : ''}${!localStorage.getItem('systemheart_installed') && !localStorage.getItem('digitalhearts_installed') ? '  No packages installed\n' : ''}`;
+      }
+      
+      return `sudo: ${args.join(' ')}: command not found
+Usage:
+  sudo install [package-name]  - Install a package
+  sudo remove [package-name]   - Remove a package`;
     }
   };
 

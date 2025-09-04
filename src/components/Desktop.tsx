@@ -186,13 +186,29 @@ const Desktop = () => {
     const handleDigitalHeartsInstalled = () => {
       setDigitalHeartsInstalled(true);
     };
+    
+    const handleSystemHeartRemoved = () => {
+      setSystemHeartInstalled(false);
+      // Close any open System Heart windows
+      setWindows(prev => prev.filter(w => w.appName !== 'System Heart'));
+    };
+    
+    const handleDigitalHeartsRemoved = () => {
+      setDigitalHeartsInstalled(false);
+      // Close any open Digital Hearts windows
+      setWindows(prev => prev.filter(w => w.appName !== 'Digital Hearts'));
+    };
 
     window.addEventListener('systemheart-installed', handleSystemHeartInstalled);
     window.addEventListener('digitalhearts-installed', handleDigitalHeartsInstalled);
+    window.addEventListener('systemheart-removed', handleSystemHeartRemoved);
+    window.addEventListener('digitalhearts-removed', handleDigitalHeartsRemoved);
     
     return () => {
       window.removeEventListener('systemheart-installed', handleSystemHeartInstalled);
       window.removeEventListener('digitalhearts-installed', handleDigitalHeartsInstalled);
+      window.removeEventListener('systemheart-removed', handleSystemHeartRemoved);
+      window.removeEventListener('digitalhearts-removed', handleDigitalHeartsRemoved);
     };
   }, []);
 
