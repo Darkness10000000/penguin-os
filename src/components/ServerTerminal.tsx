@@ -68,7 +68,7 @@ const ServerTerminal: React.FC<ServerTerminalProps> = ({ onOpenApp, currentUser,
       case 'open':
         if (args) {
           const appName = args.toLowerCase();
-          const availableApps = ['terminal', 'files', 'firefox', 'settings', 'about', 'system heart', 'digital hearts'];
+          const availableApps = ['terminal', 'files', 'firefox', 'settings', 'about', 'system heart', 'digital hearts', 'server manager'];
           
           if (availableApps.includes(appName)) {
             output = [`Opening ${args}...`];
@@ -113,6 +113,7 @@ const ServerTerminal: React.FC<ServerTerminalProps> = ({ onOpenApp, currentUser,
             '  - files',
             '  - firefox',
             '  - settings',
+            '  - server manager',
             '  - about',
             '  - system heart',
             '  - digital hearts',

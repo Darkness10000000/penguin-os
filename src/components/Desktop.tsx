@@ -14,7 +14,8 @@ import Settings from './apps/Settings';
 import SystemHeart from './apps/SystemHeart';
 import TextEditor from './apps/TextEditor';
 import VisualNovel from './apps/VisualNovel';
-import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText, Gamepad2 } from 'lucide-react';
+import ServerManager from './apps/ServerManager';
+import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText, Gamepad2, Server } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Desktop = () => {
@@ -193,6 +194,7 @@ const Desktop = () => {
           </div>
         )
       },
+      'server manager': () => createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />),
       'system heart': () => systemHeartInstalled && createWindow('System Heart', 'System Heart - Virtual Companion', <Heart className="w-4 h-4 text-pink-500" />, <SystemHeart />),
       'digital hearts': () => digitalHeartsInstalled && createWindow('Digital Hearts', 'Digital Hearts - Visual Novel', <Gamepad2 className="w-4 h-4 text-purple-500" />, <VisualNovel />)
     };
@@ -243,6 +245,11 @@ const Desktop = () => {
       name: 'Settings',
       icon: <SettingsIcon className="w-8 h-8" />,
       action: () => createWindow('Settings', 'System Settings', <SettingsIcon className="w-4 h-4" />, <Settings onEnterServerMode={handleEnterServerMode} />)
+    },
+    {
+      name: 'Server Manager',
+      icon: <Server className="w-8 h-8" />,
+      action: () => createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />)
     },
     {
       name: 'About',
