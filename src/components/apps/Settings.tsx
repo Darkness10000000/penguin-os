@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Palette, Monitor, Clock, Info, Sun, Moon, Image, Laptop, Download } from 'lucide-react';
+import { Settings as SettingsIcon, Palette, Monitor, Clock, Info, Sun, Moon, Image, Laptop, Download, Server } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -11,9 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface SettingsProps {
   onClose?: () => void;
+  onEnterServerMode?: () => void;
 }
 
-const Settings: React.FC<SettingsProps> = () => {
+const Settings: React.FC<SettingsProps> = ({ onEnterServerMode }) => {
   const { toast } = useToast();
   const [theme, setTheme] = useState(localStorage.getItem('penguinos-theme') || 'dark');
   const [primaryColor, setPrimaryColor] = useState(localStorage.getItem('penguinos-primary-color') || '220 90 60');
@@ -113,6 +114,17 @@ const Settings: React.FC<SettingsProps> = () => {
       toast({
         title: "Download Instructions",
         description: "Add this page to your home screen or bookmarks to use it as an app.",
+      });
+    }
+  };
+
+  const handleServerMode = () => {
+    if (onEnterServerMode) {
+      onEnterServerMode();
+    } else {
+      toast({
+        title: "Server Mode",
+        description: "Server mode will be activated from the desktop.",
       });
     }
   };
@@ -386,6 +398,23 @@ const Settings: React.FC<SettingsProps> = () => {
                     <Button onClick={handleDownloadApp} variant="outline" className="gap-2">
                       <Download className="w-4 h-4" />
                       Download App
+                    </Button>
+                  </div>
+                </div>
+                <div className="border-t border-border pt-4 mt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Server className="w-4 h-4" />
+                        Server Mode
+                      </h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Enter server administration mode with terminal interface
+                      </p>
+                    </div>
+                    <Button onClick={handleServerMode} variant="outline" className="gap-2">
+                      <Server className="w-4 h-4" />
+                      Enter Server Mode
                     </Button>
                   </div>
                 </div>
