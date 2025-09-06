@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Palette, Monitor, Clock, Info, Sun, Moon, Image, Laptop } from 'lucide-react';
+import { Settings as SettingsIcon, Palette, Monitor, Clock, Info, Sun, Moon, Image, Laptop, Download } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -83,6 +83,38 @@ const Settings: React.FC<SettingsProps> = () => {
       title: "Settings Applied",
       description: "Your system settings have been updated successfully.",
     });
+  };
+
+  const handleDownloadApp = () => {
+    // Register service worker for PWA functionality
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => {
+          toast({
+            title: "Download Ready",
+            description: "You can now install PenguinOS as a standalone app. Use your browser's install option or add to home screen.",
+          });
+          
+          // Trigger browser's install prompt if available
+          if ((window as any).deferredPrompt) {
+            (window as any).deferredPrompt.prompt();
+          }
+        })
+        .catch((error) => {
+          console.error('Service worker registration failed:', error);
+          toast({
+            title: "Download Error",
+            description: "Failed to prepare app for download. Please try again.",
+            variant: "destructive",
+          });
+        });
+    } else {
+      // Fallback for browsers that don't support service workers
+      toast({
+        title: "Download Instructions",
+        description: "Add this page to your home screen or bookmarks to use it as an app.",
+      });
+    }
   };
 
   const predefinedColors = [
@@ -339,10 +371,24 @@ const Settings: React.FC<SettingsProps> = () => {
                   Advanced system settings
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   More system settings will be available in future updates.
                 </p>
+                <div className="border-t border-border pt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium">Download PenguinOS</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Install PenguinOS as a standalone app on your device
+                      </p>
+                    </div>
+                    <Button onClick={handleDownloadApp} variant="outline" className="gap-2">
+                      <Download className="w-4 h-4" />
+                      Download App
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
