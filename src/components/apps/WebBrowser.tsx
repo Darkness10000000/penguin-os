@@ -311,30 +311,77 @@ const WebBrowser = () => {
     }
 
     if (activeTab.url === 'about:home') {
+      const workingSites = [
+        { name: 'Google', url: 'https://www.google.com', desc: 'Search engine' },
+        { name: 'Wikipedia', url: 'https://en.wikipedia.org', desc: 'Free encyclopedia' },
+        { name: 'GitHub', url: 'https://github.com', desc: 'Code hosting' },
+        { name: 'Stack Overflow', url: 'https://stackoverflow.com', desc: 'Developer Q&A' },
+        { name: 'MDN Web Docs', url: 'https://developer.mozilla.org', desc: 'Web documentation' },
+        { name: 'Reddit', url: 'https://www.reddit.com', desc: 'Social news' },
+        { name: 'Hacker News', url: 'https://news.ycombinator.com', desc: 'Tech news' },
+        { name: 'DuckDuckGo', url: 'https://duckduckgo.com', desc: 'Private search' },
+        { name: 'Archive.org', url: 'https://archive.org', desc: 'Internet archive' },
+        { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org', desc: 'Open maps' },
+        { name: 'BBC News', url: 'https://www.bbc.com/news', desc: 'World news' },
+        { name: 'The Guardian', url: 'https://www.theguardian.com', desc: 'News & media' }
+      ];
+
       return (
-        <div className="h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-          <div className="text-center max-w-2xl px-8">
-            <h1 className="text-4xl font-bold text-foreground mb-4">Welcome to PenguinOS Browser</h1>
-            <p className="text-muted-foreground mb-8">Your gateway to the web.</p>
+        <ScrollArea className="h-full bg-gradient-to-br from-primary/10 to-primary/5">
+          <div className="p-8 max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-foreground mb-4">Welcome to PenguinOS Browser</h1>
+              <p className="text-muted-foreground">Your gateway to the web.</p>
+            </div>
             
-            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-8">
-              <button onClick={() => navigateToUrl('https://www.google.com')}
-                className="p-4 bg-card hover:bg-card/80 rounded-lg transition-colors text-left">
-                <h3 className="font-semibold text-foreground mb-1">Google</h3>
-                <p className="text-sm text-muted-foreground">Search the web</p>
-              </button>
-              <button onClick={() => navigateToUrl('https://github.com')}
-                className="p-4 bg-card hover:bg-card/80 rounded-lg transition-colors text-left">
-                <h3 className="font-semibold text-foreground mb-1">GitHub</h3>
-                <p className="text-sm text-muted-foreground">Code & collaborate</p>
-              </button>
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold mb-4">Quick Access</h2>
+              <div className="grid grid-cols-2 gap-4 max-w-2xl">
+                <button onClick={() => navigateToUrl('https://www.google.com')}
+                  className="p-4 bg-card hover:bg-card/80 rounded-lg transition-colors text-left">
+                  <h3 className="font-semibold text-foreground mb-1">Google Search</h3>
+                  <p className="text-sm text-muted-foreground">Search the web</p>
+                </button>
+                <button onClick={() => navigateToUrl('https://github.com')}
+                  className="p-4 bg-card hover:bg-card/80 rounded-lg transition-colors text-left">
+                  <h3 className="font-semibold text-foreground mb-1">GitHub</h3>
+                  <p className="text-sm text-muted-foreground">Code & collaborate</p>
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold mb-4">Compatible Websites</h2>
+              <div className="bg-card/50 rounded-lg p-4 mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
+                  These websites are known to work well with PenguinOS Browser:
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {workingSites.map((site, index) => (
+                    <button key={index}
+                      onClick={() => navigateToUrl(site.url)}
+                      className="p-3 bg-card hover:bg-card/80 rounded-lg transition-colors text-left group">
+                      <h3 className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                        {site.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1">{site.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <p className="text-xs text-destructive/80">
+                  <strong>Note:</strong> Some websites may have restrictions that prevent them from loading in embedded browsers. 
+                  Sites requiring authentication, using strict security policies, or detecting automation may not work properly.
+                </p>
+              </div>
             </div>
 
             {bookmarks.length > 0 && (
-              <div className="w-full max-w-2xl mx-auto">
-                <h2 className="text-lg font-semibold mb-3 text-left">Your Bookmarks</h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {bookmarks.slice(0, 6).map(bookmark => (
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold mb-4">Your Bookmarks</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {bookmarks.slice(0, 9).map(bookmark => (
                     <button key={bookmark.id}
                       className="p-3 bg-card hover:bg-card/80 rounded-lg transition-colors text-left"
                       onClick={() => navigateToUrl(bookmark.url)}>
@@ -345,7 +392,7 @@ const WebBrowser = () => {
               </div>
             )}
           </div>
-        </div>
+        </ScrollArea>
       );
     }
 
