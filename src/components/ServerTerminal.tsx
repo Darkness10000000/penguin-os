@@ -54,15 +54,49 @@ const ServerTerminal: React.FC<ServerTerminalProps> = ({ onOpenApp, currentUser,
 
     switch (command) {
       case 'help':
-        output = [
-          'Available commands:',
-          '  open <app>     - Open an application',
-          '  check server   - Show server status',
-          '  list apps      - List available applications',
-          '  clear          - Clear terminal',
-          '  exit           - Exit server mode',
-          ''
-        ];
+        if (args) {
+          // Help for specific command
+          const helpDetails: { [key: string]: string[] } = {
+            'open': ['open <app> - Opens an application', 'Example: open terminal', 'Available apps: terminal, files, firefox, settings, about, system heart, digital hearts, server manager'],
+            'check': ['check server - Shows detailed server status', 'Displays uptime, CPU, memory, and connection stats'],
+            'list': ['list apps - Lists all available applications', 'list users - Shows connected users'],
+            'update': ['update server - Checks for server updates', 'Scans for available system updates'],
+            'install': ['install <app> - Installs an application', 'Example: install system-heart'],
+            'uninstall': ['uninstall <app> - Removes an application', 'Example: uninstall digital-hearts'],
+            'server': ['server logs - View recent server logs', 'Shows system events and errors'],
+            'users': ['users - List connected users and admin privileges', 'Shows active sessions and permissions'],
+            'network': ['network status - Display network activity', 'Shows connections, traffic, and IP information'],
+            'shutdown': ['shutdown - Safely shutdown the server', 'Performs clean system shutdown'],
+            'restart': ['restart - Restart the server', 'Performs system reboot'],
+            'clear': ['clear - Clear the terminal screen'],
+            'exit': ['exit - Exit server mode']
+          };
+          
+          if (helpDetails[args]) {
+            output = helpDetails[args];
+          } else {
+            output = [`No help available for command: ${args}`, 'Type "help" to see all commands'];
+          }
+        } else {
+          output = [
+            'Available commands:',
+            '  open <app>        - Open an application',
+            '  check server      - Show server status',
+            '  list apps/users   - List applications or users',
+            '  update server     - Check for server updates',
+            '  install <app>     - Install an application',
+            '  uninstall <app>   - Remove an application',
+            '  server logs       - View server logs',
+            '  users             - List connected users',
+            '  network status    - Show network activity',
+            '  shutdown          - Shutdown the server',
+            '  restart           - Restart the server',
+            '  clear             - Clear terminal',
+            '  exit              - Exit server mode',
+            '',
+            'Type "help <command>" for detailed information'
+          ];
+        }
         break;
 
       case 'open':
@@ -119,9 +153,185 @@ const ServerTerminal: React.FC<ServerTerminalProps> = ({ onOpenApp, currentUser,
             '  - digital hearts',
             ''
           ];
+        } else if (args === 'users') {
+          output = [
+            '=== Connected Users ===',
+            `admin (${currentUser}) - Active Session`,
+            '  Privileges: Full Admin',
+            '  IP: 192.168.1.100',
+            '  Session Duration: ' + formatUptime(serverStartTime),
+            '',
+            'guest_user01 - Idle',
+            '  Privileges: Read-Only',
+            '  IP: 192.168.1.105',
+            '  Session Duration: 15m 32s',
+            ''
+          ];
         } else {
-          output = ['Usage: list apps'];
+          output = ['Usage: list apps | list users'];
         }
+        break;
+
+      case 'update':
+        if (args === 'server') {
+          output = [
+            'Checking for server updates...',
+            '',
+            'Current Version: PenguinOS Server 1.0.0',
+            'Latest Version: PenguinOS Server 1.0.0',
+            '',
+            '✓ Server is up to date',
+            'Last checked: ' + new Date().toLocaleString(),
+            ''
+          ];
+        } else {
+          output = ['Usage: update server'];
+        }
+        break;
+
+      case 'install':
+        if (args) {
+          const supportedApps = ['system-heart', 'digital-hearts', 'server-manager'];
+          if (supportedApps.includes(args)) {
+            output = [
+              `Installing ${args}...`,
+              'Downloading package...',
+              'Extracting files...',
+              'Configuring application...',
+              `✓ ${args} installed successfully`,
+              ''
+            ];
+            // Trigger actual installation
+            if (args === 'system-heart') {
+              localStorage.setItem('systemheart-installed', 'true');
+              window.dispatchEvent(new Event('systemheart-installed'));
+            } else if (args === 'digital-hearts') {
+              localStorage.setItem('digitalhearts-installed', 'true');
+              window.dispatchEvent(new Event('digitalhearts-installed'));
+            } else if (args === 'server-manager') {
+              localStorage.setItem('servermanager-installed', 'true');
+              window.dispatchEvent(new Event('servermanager-installed'));
+            }
+          } else {
+            output = [`Package "${args}" not found`, 'Available packages: system-heart, digital-hearts, server-manager'];
+          }
+        } else {
+          output = ['Usage: install <app_name>'];
+        }
+        break;
+
+      case 'uninstall':
+        if (args) {
+          const installedApps = ['system-heart', 'digital-hearts', 'server-manager'];
+          if (installedApps.includes(args)) {
+            output = [
+              `Uninstalling ${args}...`,
+              'Removing application files...',
+              'Cleaning configuration...',
+              `✓ ${args} uninstalled successfully`,
+              ''
+            ];
+            // Trigger actual uninstallation
+            if (args === 'system-heart') {
+              localStorage.removeItem('systemheart-installed');
+              window.dispatchEvent(new Event('systemheart-removed'));
+            } else if (args === 'digital-hearts') {
+              localStorage.removeItem('digitalhearts-installed');
+              window.dispatchEvent(new Event('digitalhearts-removed'));
+            } else if (args === 'server-manager') {
+              localStorage.removeItem('servermanager-installed');
+              window.dispatchEvent(new Event('servermanager-removed'));
+            }
+          } else {
+            output = [`Application "${args}" is not installed`];
+          }
+        } else {
+          output = ['Usage: uninstall <app_name>'];
+        }
+        break;
+
+      case 'server':
+        if (args === 'logs') {
+          const now = new Date();
+          output = [
+            '=== Server Logs ===',
+            `[${now.toISOString()}] INFO: Server running normally`,
+            `[${new Date(now.getTime() - 120000).toISOString()}] INFO: User ${currentUser} logged in`,
+            `[${new Date(now.getTime() - 300000).toISOString()}] WARNING: High memory usage detected (45%)`,
+            `[${new Date(now.getTime() - 600000).toISOString()}] INFO: Automatic backup completed`,
+            `[${new Date(now.getTime() - 900000).toISOString()}] INFO: Security scan completed - No threats found`,
+            `[${new Date(now.getTime() - 1200000).toISOString()}] INFO: Server started`,
+            ''
+          ];
+        } else {
+          output = ['Usage: server logs'];
+        }
+        break;
+
+      case 'users':
+        output = [
+          '=== User Management ===',
+          `Active Admin: ${currentUser}`,
+          '  Status: Online',
+          '  Permissions: Full Control',
+          '',
+          'Other Users:',
+          '  guest_user01 - Status: Idle',
+          '  guest_user02 - Status: Offline',
+          '',
+          'Total Sessions: 3',
+          'Active Sessions: 2',
+          ''
+        ];
+        break;
+
+      case 'network':
+        if (args === 'status') {
+          output = [
+            '=== Network Status ===',
+            'Network Interface: eth0',
+            'IP Address: 192.168.1.100',
+            'Gateway: 192.168.1.1',
+            'DNS: 8.8.8.8, 8.8.4.4',
+            '',
+            'Traffic Statistics:',
+            `  Incoming: ${Math.floor(Math.random() * 100 + 50)} MB`,
+            `  Outgoing: ${Math.floor(Math.random() * 50 + 20)} MB`,
+            `  Bandwidth Usage: ${Math.floor(Math.random() * 30 + 10)}%`,
+            '',
+            'Active Connections:',
+            '  HTTP: 5',
+            '  HTTPS: 12',
+            '  SSH: 2',
+            ''
+          ];
+        } else {
+          output = ['Usage: network status'];
+        }
+        break;
+
+      case 'shutdown':
+        output = [
+          'Initiating server shutdown...',
+          'Saving current state...',
+          'Closing active connections...',
+          'Stopping services...',
+          '',
+          '⚠ Server will shutdown in 10 seconds',
+          'Type "cancel" to abort'
+        ];
+        break;
+
+      case 'restart':
+        output = [
+          'Initiating server restart...',
+          'Saving current state...',
+          'Preparing for restart...',
+          '',
+          '⚠ Server will restart in 10 seconds',
+          'All connections will be temporarily interrupted',
+          'Type "cancel" to abort'
+        ];
         break;
 
       case 'clear':
