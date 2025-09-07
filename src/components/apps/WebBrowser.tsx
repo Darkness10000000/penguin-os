@@ -73,10 +73,24 @@ const WebBrowser = () => {
       });
     } catch (error) {
       console.error('Error fetching website:', error);
+      
+      // Provide more detailed error message based on the URL
+      let errorMessage = 'Failed to load website. ';
+      
+      // Check if it's a common issue
+      if (urlToFetch.includes('localhost') || urlToFetch.includes('127.0.0.1')) {
+        errorMessage += 'Local servers cannot be accessed from the browser.';
+      } else if (urlToFetch.includes('192.168') || urlToFetch.includes('10.0')) {
+        errorMessage += 'Private network addresses cannot be accessed.';
+      } else {
+        errorMessage += 'The site may be blocking access, require authentication, or be temporarily unavailable.';
+      }
+      
       updateTab(activeTabId, {
         websiteContent: {
           success: false,
-          error: 'Failed to load website. The site may be blocking access or unavailable.'
+          error: errorMessage,
+          url: urlToFetch
         }
       });
     } finally {
@@ -342,11 +356,31 @@ const WebBrowser = () => {
         <div className="flex flex-col items-center justify-center h-full p-8">
           <AlertCircle className="w-16 h-16 text-destructive mb-4" />
           <h2 className="text-xl font-semibold mb-2">Failed to Load Page</h2>
-          <p className="text-muted-foreground mb-4">{activeTab.websiteContent.error}</p>
-          <Button onClick={() => window.open(activeTab.url, '_blank')}>
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Open in New Tab
-          </Button>
+          <p className="text-muted-foreground mb-4 text-center max-w-md">{activeTab.websiteContent.error}</p>
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => handleRefresh()}>
+              <RotateCw className="w-4 h-4 mr-2" />
+              Try Again
+            </Button>
+            <Button variant="outline" onClick={() => window.open(activeTab.url, '_blank')}>
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open in System Browser
+            </Button>
+            {activeTab.websiteContent.url && activeTab.websiteContent.url.includes('https') && (
+              <Button variant="outline" onClick={() => {
+                const httpUrl = activeTab.websiteContent.url?.replace('https://', 'http://') || '';
+                navigateToUrl(httpUrl);
+              }}>
+                Try HTTP Version
+              </Button>
+            )}
+          </div>
+          <div className="mt-6 p-4 bg-muted rounded-lg max-w-md">
+            <p className="text-xs text-muted-foreground">
+              <strong>Note:</strong> Some websites block embedded viewing for security reasons. 
+              Sites with strict CORS policies, authentication requirements, or those that detect browser automation may not load properly.
+            </p>
+          </div>
         </div>
       );
     }
