@@ -147,10 +147,47 @@ Processing triggers ...
 ✓ New game added to dock`;
         }
         
+        if (args[1] === 'server-manager') {
+          // Check if already installed
+          if (localStorage.getItem('servermanager_installed') === 'true') {
+            return 'server-manager is already installed';
+          }
+          
+          // Simulate installation
+          setSudoMode(true);
+          setTimeout(() => {
+            localStorage.setItem('servermanager_installed', 'true');
+            // Dispatch custom event to notify Desktop
+            window.dispatchEvent(new Event('servermanager-installed'));
+            setSudoMode(false);
+          }, 2000);
+          
+          return `Installing server-manager...
+[sudo] password for user: ********
+Reading package lists... Done
+Building dependency tree... Done
+The following NEW packages will be installed:
+  server-manager (Server Administration Suite)
+0 upgraded, 1 newly installed, 0 to remove
+Need to get 3.2 MB of archives.
+Get:1 http://repo.penguinos.org/admin server-manager 2.1.0 [3.2 MB]
+Fetched 3.2 MB in 1s (3.2 MB/s)
+Selecting previously unselected package server-manager.
+Unpacking server-manager (2.1.0) ...
+Setting up server-manager (2.1.0) ...
+Configuring server monitoring...
+Installing management tools...
+Processing triggers ...
+
+✓ Server Manager has been successfully installed
+✓ New administration tool added to dock`;
+        }
+        
         return `Package not found: ${args[1]}
 Available packages:
   systemheart     - Virtual AI Companion
-  digital-hearts  - Visual Novel Game`;
+  digital-hearts  - Visual Novel Game
+  server-manager  - Server Administration Suite`;
       }
       
       if (args[0] === 'remove' || args[0] === 'uninstall') {
@@ -220,9 +257,42 @@ Processing triggers ...
 ✓ Game removed from dock`;
         }
         
+        if (args[1] === 'server-manager') {
+          // Check if installed
+          if (localStorage.getItem('servermanager_installed') !== 'true') {
+            return 'server-manager is not installed';
+          }
+          
+          // Simulate removal
+          setSudoMode(true);
+          setTimeout(() => {
+            localStorage.removeItem('servermanager_installed');
+            // Dispatch custom event to notify Desktop
+            window.dispatchEvent(new Event('servermanager-removed'));
+            setSudoMode(false);
+          }, 1500);
+          
+          return `Removing server-manager...
+[sudo] password for user: ********
+Reading package lists... Done
+Building dependency tree... Done
+The following packages will be REMOVED:
+  server-manager
+0 upgraded, 0 newly installed, 1 to remove
+After this operation, 3.2 MB disk space will be freed.
+Do you want to continue? [Y/n] Y
+Removing server-manager (2.1.0) ...
+Stopping server monitoring services...
+Purging configuration files for server-manager ...
+Processing triggers ...
+
+✓ server-manager has been successfully removed
+✓ Administration tool removed from dock`;
+        }
+        
         return `Package not found: ${args[1]}
 Installed packages:
-${localStorage.getItem('systemheart_installed') === 'true' ? '  systemheart     - Virtual AI Companion\n' : ''}${localStorage.getItem('digitalhearts_installed') === 'true' ? '  digital-hearts  - Visual Novel Game\n' : ''}${!localStorage.getItem('systemheart_installed') && !localStorage.getItem('digitalhearts_installed') ? '  No packages installed\n' : ''}`;
+${localStorage.getItem('systemheart_installed') === 'true' ? '  systemheart     - Virtual AI Companion\n' : ''}${localStorage.getItem('digitalhearts_installed') === 'true' ? '  digital-hearts  - Visual Novel Game\n' : ''}${localStorage.getItem('servermanager_installed') === 'true' ? '  server-manager  - Server Administration Suite\n' : ''}${!localStorage.getItem('systemheart_installed') && !localStorage.getItem('digitalhearts_installed') && !localStorage.getItem('servermanager_installed') ? '  No packages installed\n' : ''}`;
       }
       
       return `sudo: ${args.join(' ')}: command not found

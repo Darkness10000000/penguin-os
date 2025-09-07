@@ -28,6 +28,9 @@ const Desktop = () => {
   const [digitalHeartsInstalled, setDigitalHeartsInstalled] = useState(
     localStorage.getItem('digitalhearts_installed') === 'true'
   );
+  const [serverManagerInstalled, setServerManagerInstalled] = useState(
+    localStorage.getItem('servermanager_installed') === 'true'
+  );
   const [authState, setAuthState] = useState<'login' | 'profile' | 'desktop'>('login');
   const [currentUser, setCurrentUser] = useState('');
   const [sessionStartTime, setSessionStartTime] = useState<Date>(new Date());
@@ -194,7 +197,7 @@ const Desktop = () => {
           </div>
         )
       },
-      'server manager': () => createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />),
+      'server manager': () => serverManagerInstalled && createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />),
       'system heart': () => systemHeartInstalled && createWindow('System Heart', 'System Heart - Virtual Companion', <Heart className="w-4 h-4 text-pink-500" />, <SystemHeart />),
       'digital hearts': () => digitalHeartsInstalled && createWindow('Digital Hearts', 'Digital Hearts - Visual Novel', <Gamepad2 className="w-4 h-4 text-purple-500" />, <VisualNovel />)
     };
@@ -246,11 +249,11 @@ const Desktop = () => {
       icon: <SettingsIcon className="w-8 h-8" />,
       action: () => createWindow('Settings', 'System Settings', <SettingsIcon className="w-4 h-4" />, <Settings onEnterServerMode={handleEnterServerMode} />)
     },
-    {
+    ...(serverManagerInstalled ? [{
       name: 'Server Manager',
       icon: <Server className="w-8 h-8" />,
       action: () => createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />)
-    },
+    }] : []),
     {
       name: 'About',
       icon: <HelpCircle className="w-8 h-8" />,
@@ -328,17 +331,31 @@ const Desktop = () => {
       // Close any open Digital Hearts windows
       setWindows(prev => prev.filter(w => w.appName !== 'Digital Hearts'));
     };
+    
+    const handleServerManagerInstalled = () => {
+      setServerManagerInstalled(true);
+    };
+    
+    const handleServerManagerRemoved = () => {
+      setServerManagerInstalled(false);
+      // Close any open Server Manager windows
+      setWindows(prev => prev.filter(w => w.appName !== 'Server Manager'));
+    };
 
     window.addEventListener('systemheart-installed', handleSystemHeartInstalled);
     window.addEventListener('digitalhearts-installed', handleDigitalHeartsInstalled);
     window.addEventListener('systemheart-removed', handleSystemHeartRemoved);
     window.addEventListener('digitalhearts-removed', handleDigitalHeartsRemoved);
+    window.addEventListener('servermanager-installed', handleServerManagerInstalled);
+    window.addEventListener('servermanager-removed', handleServerManagerRemoved);
     
     return () => {
       window.removeEventListener('systemheart-installed', handleSystemHeartInstalled);
       window.removeEventListener('digitalhearts-installed', handleDigitalHeartsInstalled);
       window.removeEventListener('systemheart-removed', handleSystemHeartRemoved);
       window.removeEventListener('digitalhearts-removed', handleDigitalHeartsRemoved);
+      window.removeEventListener('servermanager-installed', handleServerManagerInstalled);
+      window.removeEventListener('servermanager-removed', handleServerManagerRemoved);
     };
   }, []);
 
