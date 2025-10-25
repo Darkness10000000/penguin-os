@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FileItem } from '@/types/system';
-import { File, Folder, Home, ChevronRight, Grid, List, Eye, Lock } from 'lucide-react';
+import { File, Folder, Home, ChevronRight, Grid, List, Eye, Lock, Upload, Image, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface FileExplorerProps {
   onOpenFile?: (fileName: string, content: string) => void;
@@ -11,6 +13,7 @@ const FileExplorer = ({ onOpenFile }: FileExplorerProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [awareness, setAwareness] = useState(0);
+  const [uploadedFiles, setUploadedFiles] = useState<FileItem[]>([]);
   
   // Check System Heart awareness for hidden files
   useEffect(() => {
@@ -224,6 +227,79 @@ Forever.`
     }
   }
 
+  // Load uploaded files from localStorage
+  useEffect(() => {
+    const savedFiles = localStorage.getItem('uploaded_files');
+    if (savedFiles) {
+      setUploadedFiles(JSON.parse(savedFiles));
+    }
+  }, []);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newFiles: FileItem[] = [];
+    
+    Array.from(files).forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        const newFile: FileItem = {
+          id: `uploaded-${Date.now()}-${index}`,
+          name: file.name,
+          type: 'file',
+          path: `${currentPath}/${file.name}`,
+          icon: file.type.startsWith('image/') ? 
+            <Image className="w-6 h-6 text-purple-400" /> : 
+            <File className="w-6 h-6 text-gray-400" />,
+          content: content
+        };
+        
+        newFiles.push(newFile);
+        
+        if (newFiles.length === files.length) {
+          const updatedFiles = [...uploadedFiles, ...newFiles];
+          setUploadedFiles(updatedFiles);
+          localStorage.setItem('uploaded_files', JSON.stringify(updatedFiles));
+        }
+      };
+      
+      if (file.type.startsWith('image/')) {
+        reader.readAsDataURL(file);
+      } else {
+        reader.readAsText(file);
+      }
+    });
+  };
+
+  const getCurrentFolderContents = () => {
+    let items: FileItem[] = [];
+    
+    if (currentPath === '/home/user') {
+      items = fileSystem;
+    } else {
+      // Find the current folder and get its children
+      const findFolder = (items: FileItem[], path: string): FileItem | undefined => {
+        for (const item of items) {
+          if (item.path === path) return item;
+          if (item.children) {
+            const found = findFolder(item.children, path);
+            if (found) return found;
+          }
+        }
+        return undefined;
+      };
+      
+      const currentFolder = findFolder(fileSystem, currentPath);
+      items = currentFolder?.children || [];
+    }
+    
+    // Add uploaded files that belong to current path
+    const pathFiles = uploadedFiles.filter(f => f.path.startsWith(currentPath) && f.path !== currentPath);
+    return [...items, ...pathFiles];
+  };
+
   const handleItemClick = (item: FileItem) => {
     setSelectedItem(item.id);
     if (item.type === 'folder') {
@@ -233,14 +309,33 @@ Forever.`
     }
   };
 
+  const handleBack = () => {
+    const pathParts = currentPath.split('/').filter(Boolean);
+    if (pathParts.length > 0) {
+      pathParts.pop();
+      setCurrentPath('/' + pathParts.join('/') || '/home/user');
+    }
+  };
+
   const pathParts = currentPath.split('/').filter(Boolean);
+  const currentItems = getCurrentFolderContents();
 
   return (
     <div className="h-full flex flex-col bg-file-bg">
       {/* Toolbar */}
       <div className="h-12 bg-window-header border-b border-window-border flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <button className="p-1.5 hover:bg-white/10 rounded transition-colors">
+          <button 
+            onClick={handleBack}
+            className="p-1.5 hover:bg-white/10 rounded transition-colors disabled:opacity-50"
+            disabled={currentPath === '/home/user'}
+          >
+            <ArrowLeft className="w-4 h-4 text-foreground/70" />
+          </button>
+          <button 
+            onClick={() => setCurrentPath('/home/user')}
+            className="p-1.5 hover:bg-white/10 rounded transition-colors"
+          >
             <Home className="w-4 h-4 text-foreground/70" />
           </button>
           <div className="flex items-center gap-1 text-sm text-foreground/70">
@@ -253,23 +348,42 @@ Forever.`
           </div>
         </div>
         
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`p-1.5 rounded transition-colors ${
-              viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10 text-foreground/70'
-            }`}
-          >
-            <Grid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`p-1.5 rounded transition-colors ${
-              viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10 text-foreground/70'
-            }`}
-          >
-            <List className="w-4 h-4" />
-          </button>
+        <div className="flex items-center gap-2">
+          <label htmlFor="file-upload">
+            <Button variant="outline" size="sm" className="cursor-pointer" asChild>
+              <span>
+                <Upload className="w-4 h-4 mr-2" />
+                Upload
+              </span>
+            </Button>
+          </label>
+          <Input
+            id="file-upload"
+            type="file"
+            multiple
+            onChange={handleFileUpload}
+            className="hidden"
+            accept="image/*,text/*,.txt,.md,.json"
+          />
+          
+          <div className="flex items-center gap-1 border-l border-window-border pl-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10 text-foreground/70'
+              }`}
+            >
+              <Grid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10 text-foreground/70'
+              }`}
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -277,7 +391,7 @@ Forever.`
       <div className="flex-1 overflow-auto p-4">
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-6 gap-4">
-            {fileSystem.map((item) => (
+            {currentItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleItemClick(item)}
@@ -292,7 +406,7 @@ Forever.`
           </div>
         ) : (
           <div className="space-y-1">
-            {fileSystem.map((item) => (
+            {currentItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleItemClick(item)}
@@ -310,7 +424,7 @@ Forever.`
 
       {/* Status Bar */}
       <div className="h-6 bg-window-header border-t border-window-border px-4 flex items-center text-xs text-foreground/60">
-        {fileSystem.length} items
+        {currentItems.length} items
       </div>
     </div>
   );
