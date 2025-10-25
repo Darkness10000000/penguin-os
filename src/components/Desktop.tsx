@@ -37,14 +37,18 @@ const Desktop = () => {
   const [showProfileFromDesktop, setShowProfileFromDesktop] = useState(false);
   const [serverMode, setServerMode] = useState(false);
   const [serverStartTime, setServerStartTime] = useState<Date>(new Date());
+  const [isGuest, setIsGuest] = useState(false);
   
   // Check if user is already logged in
   useEffect(() => {
     const savedUser = localStorage.getItem('current_user');
     const savedSessionTime = localStorage.getItem('session_start_time');
+    const savedGuestMode = localStorage.getItem('is_guest');
+    
     if (savedUser) {
       setCurrentUser(savedUser);
       setAuthState('desktop');
+      setIsGuest(savedGuestMode === 'true');
       if (savedSessionTime) {
         setSessionStartTime(new Date(savedSessionTime));
       }
@@ -107,8 +111,21 @@ const Desktop = () => {
     const now = new Date();
     setCurrentUser(email);
     setSessionStartTime(now);
+    setIsGuest(false);
     localStorage.setItem('current_user', email);
     localStorage.setItem('session_start_time', now.toISOString());
+    localStorage.setItem('is_guest', 'false');
+    setAuthState('profile');
+  };
+  
+  const handleGuestLogin = () => {
+    const now = new Date();
+    setCurrentUser('Guest');
+    setSessionStartTime(now);
+    setIsGuest(true);
+    localStorage.setItem('current_user', 'Guest');
+    localStorage.setItem('session_start_time', now.toISOString());
+    localStorage.setItem('is_guest', 'true');
     setAuthState('profile');
   };
   
@@ -121,7 +138,9 @@ const Desktop = () => {
     await supabase.auth.signOut();
     localStorage.removeItem('current_user');
     localStorage.removeItem('session_start_time');
+    localStorage.removeItem('is_guest');
     setCurrentUser('');
+    setIsGuest(false);
     setAuthState('login');
     setWindows([]);
     setShowProfileFromDesktop(false);
@@ -229,11 +248,11 @@ const Desktop = () => {
       icon: <Gamepad2 className="w-8 h-8 text-purple-500" />,
       action: () => createWindow('Digital Hearts', 'Digital Hearts - Visual Novel', <Gamepad2 className="w-4 h-4 text-purple-500" />, <VisualNovel />)
     }] : []),
-    {
+    ...(!isGuest ? [{
       name: 'Terminal',
       icon: <TerminalIcon className="w-8 h-8" />,
       action: () => createWindow('Terminal', 'Terminal', <TerminalIcon className="w-4 h-4" />, <Terminal />)
-    },
+    }] : []),
     {
       name: 'Files',
       icon: <FolderOpen className="w-8 h-8" />,
@@ -247,9 +266,9 @@ const Desktop = () => {
     {
       name: 'Settings',
       icon: <SettingsIcon className="w-8 h-8" />,
-      action: () => createWindow('Settings', 'System Settings', <SettingsIcon className="w-4 h-4" />, <Settings onEnterServerMode={handleEnterServerMode} />)
+      action: () => createWindow('Settings', 'System Settings', <SettingsIcon className="w-4 h-4" />, <Settings onEnterServerMode={isGuest ? undefined : handleEnterServerMode} />)
     },
-    ...(serverManagerInstalled ? [{
+    ...(!isGuest && serverManagerInstalled ? [{
       name: 'Server Manager',
       icon: <Server className="w-8 h-8" />,
       action: () => createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />)
@@ -361,7 +380,7 @@ const Desktop = () => {
 
   // Render login screen if not authenticated
   if (authState === 'login') {
-    return <Login onLogin={handleLogin} />;
+    return <Login onLogin={handleLogin} onGuestLogin={handleGuestLogin} />;
   }
   
   // Render profile screen after login

@@ -8,9 +8,10 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface LoginProps {
   onLogin: (email: string) => void;
+  onGuestLogin: () => void;
 }
 
-const Login = ({ onLogin }: LoginProps) => {
+const Login = ({ onLogin, onGuestLogin }: LoginProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -156,6 +157,15 @@ const Login = ({ onLogin }: LoginProps) => {
             disabled={isLoading || !email || !password}
           >
             {isLoading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Login'}
+          </Button>
+
+          {/* Guest Login Button */}
+          <Button
+            onClick={onGuestLogin}
+            variant="outline"
+            className="w-full h-12 text-base font-medium"
+          >
+            Continue as Guest
           </Button>
 
           {/* Toggle between login and signup */}
