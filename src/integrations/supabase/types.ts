@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      apps: {
+        Row: {
+          app_code: string
+          category: string | null
+          created_at: string
+          description: string
+          downloads: number | null
+          icon: string
+          id: string
+          is_approved: boolean | null
+          name: string
+          rating: number | null
+          size: string
+          updated_at: string
+          user_id: string
+          version: string
+        }
+        Insert: {
+          app_code: string
+          category?: string | null
+          created_at?: string
+          description: string
+          downloads?: number | null
+          icon: string
+          id?: string
+          is_approved?: boolean | null
+          name: string
+          rating?: number | null
+          size?: string
+          updated_at?: string
+          user_id: string
+          version?: string
+        }
+        Update: {
+          app_code?: string
+          category?: string | null
+          created_at?: string
+          description?: string
+          downloads?: number | null
+          icon?: string
+          id?: string
+          is_approved?: boolean | null
+          name?: string
+          rating?: number | null
+          size?: string
+          updated_at?: string
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
+      }
       bookmarks: {
         Row: {
           created_at: string
