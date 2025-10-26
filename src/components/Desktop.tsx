@@ -17,7 +17,8 @@ import VisualNovel from './apps/VisualNovel';
 import ServerManager from './apps/ServerManager';
 import PenguinStore from './apps/PenguinStore';
 import Calculator from './apps/Calculator';
-import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText, Gamepad2, Server, Store, Calculator as CalculatorIcon } from 'lucide-react';
+import AppBuilder from './apps/AppBuilder';
+import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText, Gamepad2, Server, Store, Calculator as CalculatorIcon, Code } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Desktop = () => {
@@ -221,7 +222,8 @@ const Desktop = () => {
           </div>
         )
       },
-      'penguin store': () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore />),
+      'penguin store': () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore onOpenAppBuilder={() => handleOpenAppFromServer('app builder')} />),
+      'app builder': () => createWindow('App Builder', 'App Builder', <Code className="w-4 h-4" />, <AppBuilder />),
       'calculator': () => calculatorInstalled && createWindow('Calculator', 'Calculator', <CalculatorIcon className="w-4 h-4" />, <Calculator />),
       'server manager': () => serverManagerInstalled && createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />),
       'system heart': () => systemHeartInstalled && createWindow('System Heart', 'System Heart - Virtual Companion', <Heart className="w-4 h-4 text-pink-500" />, <SystemHeart />),
@@ -248,7 +250,7 @@ const Desktop = () => {
     {
       name: 'Penguin Store',
       icon: <Store className="w-8 h-8" />,
-      action: () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore />)
+      action: () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore onOpenAppBuilder={() => handleOpenAppFromServer('app builder')} />)
     },
     ...(systemHeartInstalled ? [{
       name: 'System Heart',
