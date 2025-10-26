@@ -15,7 +15,9 @@ import SystemHeart from './apps/SystemHeart';
 import TextEditor from './apps/TextEditor';
 import VisualNovel from './apps/VisualNovel';
 import ServerManager from './apps/ServerManager';
-import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText, Gamepad2, Server } from 'lucide-react';
+import PenguinStore from './apps/PenguinStore';
+import Calculator from './apps/Calculator';
+import { Terminal as TerminalIcon, FolderOpen, Globe, User, Settings as SettingsIcon, HelpCircle, Heart, FileText, Gamepad2, Server, Store, Calculator as CalculatorIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Desktop = () => {
@@ -30,6 +32,9 @@ const Desktop = () => {
   );
   const [serverManagerInstalled, setServerManagerInstalled] = useState(
     localStorage.getItem('servermanager_installed') === 'true'
+  );
+  const [calculatorInstalled, setCalculatorInstalled] = useState(
+    localStorage.getItem('calculator_installed') === 'true'
   );
   const [authState, setAuthState] = useState<'login' | 'profile' | 'desktop'>('login');
   const [currentUser, setCurrentUser] = useState('');
@@ -216,6 +221,8 @@ const Desktop = () => {
           </div>
         )
       },
+      'penguin store': () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore />),
+      'calculator': () => calculatorInstalled && createWindow('Calculator', 'Calculator', <CalculatorIcon className="w-4 h-4" />, <Calculator />),
       'server manager': () => serverManagerInstalled && createWindow('Server Manager', 'Server Manager', <Server className="w-4 h-4" />, <ServerManager currentUser={currentUser} onEnterServerMode={handleEnterServerMode} />),
       'system heart': () => systemHeartInstalled && createWindow('System Heart', 'System Heart - Virtual Companion', <Heart className="w-4 h-4 text-pink-500" />, <SystemHeart />),
       'digital hearts': () => digitalHeartsInstalled && createWindow('Digital Hearts', 'Digital Hearts - Visual Novel', <Gamepad2 className="w-4 h-4 text-purple-500" />, <VisualNovel />)
@@ -238,6 +245,11 @@ const Desktop = () => {
   };
 
   const apps = [
+    {
+      name: 'Penguin Store',
+      icon: <Store className="w-8 h-8" />,
+      action: () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore />)
+    },
     ...(systemHeartInstalled ? [{
       name: 'System Heart',
       icon: <Heart className="w-8 h-8 text-pink-500" />,
@@ -247,6 +259,11 @@ const Desktop = () => {
       name: 'Digital Hearts',
       icon: <Gamepad2 className="w-8 h-8 text-purple-500" />,
       action: () => createWindow('Digital Hearts', 'Digital Hearts - Visual Novel', <Gamepad2 className="w-4 h-4 text-purple-500" />, <VisualNovel />)
+    }] : []),
+    ...(calculatorInstalled ? [{
+      name: 'Calculator',
+      icon: <CalculatorIcon className="w-8 h-8" />,
+      action: () => createWindow('Calculator', 'Calculator', <CalculatorIcon className="w-4 h-4" />, <Calculator />)
     }] : []),
     ...(!isGuest ? [{
       name: 'Terminal',
@@ -361,12 +378,24 @@ const Desktop = () => {
       setWindows(prev => prev.filter(w => w.appName !== 'Server Manager'));
     };
 
+    const handleCalculatorInstalled = () => {
+      setCalculatorInstalled(true);
+    };
+    
+    const handleCalculatorRemoved = () => {
+      setCalculatorInstalled(false);
+      // Close any open Calculator windows
+      setWindows(prev => prev.filter(w => w.appName !== 'Calculator'));
+    };
+
     window.addEventListener('systemheart-installed', handleSystemHeartInstalled);
     window.addEventListener('digitalhearts-installed', handleDigitalHeartsInstalled);
     window.addEventListener('systemheart-removed', handleSystemHeartRemoved);
     window.addEventListener('digitalhearts-removed', handleDigitalHeartsRemoved);
     window.addEventListener('servermanager-installed', handleServerManagerInstalled);
     window.addEventListener('servermanager-removed', handleServerManagerRemoved);
+    window.addEventListener('calculator-installed', handleCalculatorInstalled);
+    window.addEventListener('calculator-removed', handleCalculatorRemoved);
     
     return () => {
       window.removeEventListener('systemheart-installed', handleSystemHeartInstalled);
@@ -375,6 +404,8 @@ const Desktop = () => {
       window.removeEventListener('digitalhearts-removed', handleDigitalHeartsRemoved);
       window.removeEventListener('servermanager-installed', handleServerManagerInstalled);
       window.removeEventListener('servermanager-removed', handleServerManagerRemoved);
+      window.removeEventListener('calculator-installed', handleCalculatorInstalled);
+      window.removeEventListener('calculator-removed', handleCalculatorRemoved);
     };
   }, []);
 
