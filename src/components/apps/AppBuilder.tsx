@@ -420,12 +420,12 @@ export default VisualNovel;`;
                             value={button.targetSlideId}
                             onValueChange={(value) => updateButton(currentSlideIndex, button.id, 'targetSlideId', value)}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-background">
                               <SelectValue placeholder="Select target slide" />
                             </SelectTrigger>
-                            <SelectContent className="z-50 bg-background">
+                            <SelectContent className="z-[100] bg-popover border shadow-lg" sideOffset={5}>
                               {vnSlides.map((slide, idx) => (
-                                <SelectItem key={slide.id} value={slide.id}>
+                                <SelectItem key={slide.id} value={slide.id} className="cursor-pointer">
                                   Slide {idx + 1}
                                 </SelectItem>
                               ))}
