@@ -422,14 +422,16 @@ export default VisualNovel;`;
                               type="number"
                               min="1"
                               max={vnSlides.length}
-                              value={vnSlides.findIndex(s => s.id === button.targetSlideId) + 1}
+                              value={vnSlides.findIndex(s => s.id === button.targetSlideId) + 1 || ''}
                               onChange={(e) => {
-                                const slideNumber = parseInt(e.target.value);
-                                if (slideNumber >= 1 && slideNumber <= vnSlides.length) {
+                                const value = e.target.value;
+                                if (value === '') return; // Allow clearing
+                                const slideNumber = parseInt(value);
+                                if (!isNaN(slideNumber) && slideNumber >= 1 && slideNumber <= vnSlides.length) {
                                   updateButton(currentSlideIndex, button.id, 'targetSlideId', vnSlides[slideNumber - 1].id);
                                 }
                               }}
-                              placeholder="Slide number"
+                              placeholder="Enter slide number"
                             />
                           </div>
                         </div>
