@@ -423,7 +423,7 @@ export default VisualNovel;`;
                             <SelectTrigger>
                               <SelectValue placeholder="Select target slide" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="z-50 bg-background">
                               {vnSlides.map((slide, idx) => (
                                 <SelectItem key={slide.id} value={slide.id}>
                                   Slide {idx + 1}
