@@ -416,21 +416,22 @@ export default VisualNovel;`;
                             onChange={(e) => updateButton(currentSlideIndex, button.id, 'label', e.target.value)}
                             placeholder="Button text"
                           />
-                          <Select
-                            value={button.targetSlideId}
-                            onValueChange={(value) => updateButton(currentSlideIndex, button.id, 'targetSlideId', value)}
-                          >
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder="Select target slide" />
-                            </SelectTrigger>
-                            <SelectContent className="z-[100] bg-popover border shadow-lg" sideOffset={5}>
-                              {vnSlides.map((slide, idx) => (
-                                <SelectItem key={slide.id} value={slide.id} className="cursor-pointer">
-                                  Slide {idx + 1}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Go to Slide (1-{vnSlides.length})</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              max={vnSlides.length}
+                              value={vnSlides.findIndex(s => s.id === button.targetSlideId) + 1}
+                              onChange={(e) => {
+                                const slideNumber = parseInt(e.target.value);
+                                if (slideNumber >= 1 && slideNumber <= vnSlides.length) {
+                                  updateButton(currentSlideIndex, button.id, 'targetSlideId', vnSlides[slideNumber - 1].id);
+                                }
+                              }}
+                              placeholder="Slide number"
+                            />
+                          </div>
                         </div>
                         <Button 
                           variant="ghost" 
