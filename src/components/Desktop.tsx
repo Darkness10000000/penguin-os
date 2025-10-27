@@ -246,12 +246,21 @@ const Desktop = () => {
     );
   };
 
+  const openAppBuilder = () => {
+    createWindow('App Builder', 'App Builder', <Code className="w-4 h-4" />, <AppBuilder />);
+  };
+
   const apps = [
     {
       name: 'Penguin Store',
       icon: <Store className="w-8 h-8" />,
-      action: () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore onOpenAppBuilder={() => handleOpenAppFromServer('app builder')} />)
+      action: () => createWindow('Penguin Store', 'Penguin Store', <Store className="w-4 h-4" />, <PenguinStore onOpenAppBuilder={openAppBuilder} />)
     },
+    ...(!isGuest ? [{
+      name: 'App Builder',
+      icon: <Code className="w-8 h-8" />,
+      action: openAppBuilder
+    }] : []),
     ...(systemHeartInstalled ? [{
       name: 'System Heart',
       icon: <Heart className="w-8 h-8 text-pink-500" />,
