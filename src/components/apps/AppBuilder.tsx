@@ -422,11 +422,9 @@ export default VisualNovel;`;
                               type="number"
                               min="1"
                               max={vnSlides.length}
-                              value={vnSlides.findIndex(s => s.id === button.targetSlideId) + 1 || ''}
+                              value={vnSlides.findIndex(s => s.id === button.targetSlideId) + 1}
                               onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === '') return; // Allow clearing
-                                const slideNumber = parseInt(value);
+                                const slideNumber = parseInt(e.target.value);
                                 if (!isNaN(slideNumber) && slideNumber >= 1 && slideNumber <= vnSlides.length) {
                                   updateButton(currentSlideIndex, button.id, 'targetSlideId', vnSlides[slideNumber - 1].id);
                                 }
