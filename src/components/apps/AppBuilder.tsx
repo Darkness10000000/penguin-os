@@ -33,6 +33,7 @@ const AppBuilder = () => {
     { id: '1', background: '', textBoxes: [], buttons: [] }
   ]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [buttonInputValues, setButtonInputValues] = useState<Record<string, string>>({});
 
   const addSlide = () => {
     if (vnSlides.length >= 150) {
@@ -109,6 +110,8 @@ const AppBuilder = () => {
     };
     newSlides[slideIndex].buttons.push(newButton);
     setVnSlides(newSlides);
+    // Initialize input value for new button
+    setButtonInputValues(prev => ({ ...prev, [newButton.id]: '1' }));
   };
 
   const updateButton = (slideIndex: number, buttonId: string, field: 'label' | 'targetSlideId', value: string) => {
@@ -422,9 +425,12 @@ export default VisualNovel;`;
                               type="number"
                               min="1"
                               max={vnSlides.length}
-                              value={vnSlides.findIndex(s => s.id === button.targetSlideId) + 1}
+                              value={buttonInputValues[button.id] ?? (vnSlides.findIndex(s => s.id === button.targetSlideId) + 1)}
                               onChange={(e) => {
-                                const slideNumber = parseInt(e.target.value);
+                                const value = e.target.value;
+                                setButtonInputValues(prev => ({ ...prev, [button.id]: value }));
+                                
+                                const slideNumber = parseInt(value);
                                 if (!isNaN(slideNumber) && slideNumber >= 1 && slideNumber <= vnSlides.length) {
                                   updateButton(currentSlideIndex, button.id, 'targetSlideId', vnSlides[slideNumber - 1].id);
                                 }
