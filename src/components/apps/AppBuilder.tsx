@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Code, Plus, Trash2, Image as ImageIcon, Type, MousePointer } from 'lucide-react';
+import { Code, Plus, Trash2, Image as ImageIcon, Type, MousePointer, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface VNSlide {
   id: string;
@@ -34,6 +35,8 @@ const AppBuilder = () => {
   ]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [buttonInputValues, setButtonInputValues] = useState<Record<string, string>>({});
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewSlideId, setPreviewSlideId] = useState('1');
 
   const addSlide = () => {
     if (vnSlides.length >= 150) {
@@ -212,6 +215,7 @@ export default VisualNovel;`;
   };
 
   const currentSlide = vnSlides[currentSlideIndex];
+  const previewSlide = vnSlides.find(s => s.id === previewSlideId);
 
   return (
     <div className="h-full w-full overflow-auto bg-background p-6">
@@ -333,10 +337,16 @@ export default VisualNovel;`;
             <div className="border rounded-lg p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Slides ({vnSlides.length}/150)</h3>
-                <Button onClick={addSlide} size="sm" disabled={vnSlides.length >= 150}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Slide
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={() => { setPreviewSlideId('1'); setShowPreview(true); }} size="sm" variant="outline">
+                    <Play className="w-4 h-4 mr-2" />
+                    Preview
+                  </Button>
+                  <Button onClick={addSlide} size="sm" disabled={vnSlides.length >= 150}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Slide
+                  </Button>
+                </div>
               </div>
 
               <ScrollArea className="h-20">
@@ -459,6 +469,41 @@ export default VisualNovel;`;
           <Code className="w-4 h-4 mr-2" />
           Submit App for Review
         </Button>
+
+        <Dialog open={showPreview} onOpenChange={setShowPreview}>
+          <DialogContent className="max-w-4xl h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>Visual Novel Preview</DialogTitle>
+            </DialogHeader>
+            <div className="h-full w-full relative overflow-hidden rounded-lg" 
+              style={{ 
+                backgroundImage: previewSlide?.background ? `url(${previewSlide.background})` : 'none', 
+                backgroundSize: 'cover', 
+                backgroundPosition: 'center',
+                backgroundColor: previewSlide?.background ? 'transparent' : 'hsl(var(--muted))'
+              }}>
+              {previewSlide?.textBoxes.map(tb => (
+                <div 
+                  key={tb.id} 
+                  className="absolute text-foreground bg-background/80 p-4 rounded shadow-lg" 
+                  style={{ top: `${tb.y}%`, left: `${tb.x}%`, maxWidth: '60%' }}
+                >
+                  {tb.text}
+                </div>
+              ))}
+              {previewSlide?.buttons.map(btn => (
+                <button 
+                  key={btn.id} 
+                  onClick={() => setPreviewSlideId(btn.targetSlideId)} 
+                  className="absolute bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90 transition-colors shadow-lg" 
+                  style={{ top: `${btn.y}%`, left: `${btn.x}%` }}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
