@@ -35,6 +35,7 @@ const AppBuilder = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [buttonInputValues, setButtonInputValues] = useState<Record<string, string>>({});
   const [previewSlideId, setPreviewSlideId] = useState('1');
+  const [draggedItem, setDraggedItem] = useState<{ type: 'text' | 'button', id: string, offsetX: number, offsetY: number } | null>(null);
 
   const addSlide = () => {
     if (vnSlides.length >= 150) {
@@ -126,6 +127,50 @@ const AppBuilder = () => {
     const newSlides = [...vnSlides];
     newSlides[slideIndex].buttons = newSlides[slideIndex].buttons.filter(b => b.id !== buttonId);
     setVnSlides(newSlides);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent, type: 'text' | 'button', id: string, container: HTMLElement) => {
+    const rect = container.getBoundingClientRect();
+    const offsetX = e.clientX - (e.currentTarget as HTMLElement).getBoundingClientRect().left;
+    const offsetY = e.clientY - (e.currentTarget as HTMLElement).getBoundingClientRect().top;
+    setDraggedItem({ type, id, offsetX, offsetY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent, container: HTMLElement) => {
+    if (!draggedItem) return;
+    
+    const rect = container.getBoundingClientRect();
+    const x = ((e.clientX - rect.left - draggedItem.offsetX) / rect.width) * 100;
+    const y = ((e.clientY - rect.top - draggedItem.offsetY) / rect.height) * 100;
+    
+    const slideIndex = vnSlides.findIndex(s => s.id === previewSlideId);
+    if (slideIndex === -1) return;
+    
+    const newSlides = [...vnSlides];
+    if (draggedItem.type === 'text') {
+      const textBox = newSlides[slideIndex].textBoxes.find(tb => tb.id === draggedItem.id);
+      if (textBox) {
+        textBox.x = Math.max(0, Math.min(80, x));
+        textBox.y = Math.max(0, Math.min(90, y));
+      }
+    } else {
+      const button = newSlides[slideIndex].buttons.find(b => b.id === draggedItem.id);
+      if (button) {
+        button.x = Math.max(0, Math.min(80, x));
+        button.y = Math.max(0, Math.min(90, y));
+      }
+    }
+    setVnSlides(newSlides);
+  };
+
+  const handleMouseUp = () => {
+    if (draggedItem) {
+      toast({
+        title: "Position Saved",
+        description: "Element position has been updated",
+      });
+    }
+    setDraggedItem(null);
   };
 
   const generateVNCode = () => {
@@ -464,18 +509,33 @@ export default VisualNovel;`;
           </TabsContent>
 
           <TabsContent value="preview" className="mt-4">
-            <div className="h-[600px] w-full relative overflow-hidden rounded-lg border" 
+            <div className="mb-2 text-sm text-muted-foreground">
+              💡 Drag text boxes and buttons to reposition them
+            </div>
+            <div 
+              className="h-[600px] w-full relative overflow-hidden rounded-lg border select-none" 
               style={{ 
                 backgroundImage: previewSlide?.background ? `url(${previewSlide.background})` : 'none', 
                 backgroundSize: 'cover', 
                 backgroundPosition: 'center',
-                backgroundColor: previewSlide?.background ? 'transparent' : 'hsl(var(--muted))'
-              }}>
+                backgroundColor: previewSlide?.background ? 'transparent' : 'hsl(var(--muted))',
+                cursor: draggedItem ? 'grabbing' : 'default'
+              }}
+              onMouseMove={(e) => handleMouseMove(e, e.currentTarget)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
               {previewSlide?.textBoxes.map(tb => (
                 <div 
                   key={tb.id} 
-                  className="absolute text-foreground bg-background/80 p-4 rounded shadow-lg" 
-                  style={{ top: `${tb.y}%`, left: `${tb.x}%`, maxWidth: '60%' }}
+                  className="absolute text-foreground bg-background/80 p-4 rounded shadow-lg hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary/50" 
+                  style={{ 
+                    top: `${tb.y}%`, 
+                    left: `${tb.x}%`, 
+                    maxWidth: '60%',
+                    cursor: 'grab'
+                  }}
+                  onMouseDown={(e) => handleMouseDown(e, 'text', tb.id, e.currentTarget.parentElement as HTMLElement)}
                 >
                   {tb.text}
                 </div>
@@ -483,9 +543,21 @@ export default VisualNovel;`;
               {previewSlide?.buttons.map(btn => (
                 <button 
                   key={btn.id} 
-                  onClick={() => setPreviewSlideId(btn.targetSlideId)} 
-                  className="absolute bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90 transition-colors shadow-lg" 
-                  style={{ top: `${btn.y}%`, left: `${btn.x}%` }}
+                  onMouseDown={(e) => {
+                    handleMouseDown(e, 'button', btn.id, e.currentTarget.parentElement as HTMLElement);
+                  }}
+                  onClick={(e) => {
+                    if (!draggedItem) {
+                      setPreviewSlideId(btn.targetSlideId);
+                    }
+                    e.preventDefault();
+                  }}
+                  className="absolute bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl border-2 border-transparent hover:border-primary-foreground/30" 
+                  style={{ 
+                    top: `${btn.y}%`, 
+                    left: `${btn.x}%`,
+                    cursor: 'grab'
+                  }}
                 >
                   {btn.label}
                 </button>
