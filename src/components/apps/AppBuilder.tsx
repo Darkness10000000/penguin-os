@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface VNSlide {
   id: string;
@@ -20,7 +19,7 @@ interface VNSlide {
 
 const AppBuilder = () => {
   const { toast } = useToast();
-  const [appType, setAppType] = useState<'code' | 'vn'>('code');
+  const [appType, setAppType] = useState<'code' | 'vn' | 'preview'>('code');
   const [newApp, setNewApp] = useState({
     name: '',
     description: '',
@@ -35,7 +34,6 @@ const AppBuilder = () => {
   ]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [buttonInputValues, setButtonInputValues] = useState<Record<string, string>>({});
-  const [showPreview, setShowPreview] = useState(false);
   const [previewSlideId, setPreviewSlideId] = useState('1');
 
   const addSlide = () => {
@@ -225,10 +223,11 @@ export default VisualNovel;`;
           <p className="text-muted-foreground">Create and submit apps to Penguin Store</p>
         </div>
 
-        <Tabs value={appType} onValueChange={(v) => setAppType(v as 'code' | 'vn')} className="mb-4">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs value={appType} onValueChange={(v) => setAppType(v as 'code' | 'vn' | 'preview')} className="mb-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="code">Code App</TabsTrigger>
             <TabsTrigger value="vn">Visual Novel</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
           </TabsList>
 
           <TabsContent value="code" className="space-y-4 mt-4">
@@ -338,7 +337,7 @@ export default VisualNovel;`;
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Slides ({vnSlides.length}/150)</h3>
                 <div className="flex gap-2">
-                  <Button onClick={() => { setPreviewSlideId('1'); setShowPreview(true); }} size="sm" variant="outline">
+                  <Button onClick={() => { setPreviewSlideId('1'); setAppType('preview'); }} size="sm" variant="outline">
                     <Play className="w-4 h-4 mr-2" />
                     Preview
                   </Button>
@@ -463,19 +462,9 @@ export default VisualNovel;`;
               )}
             </div>
           </TabsContent>
-        </Tabs>
 
-        <Button onClick={handleCreateApp} className="w-full" size="lg">
-          <Code className="w-4 h-4 mr-2" />
-          Submit App for Review
-        </Button>
-
-        <Dialog open={showPreview} onOpenChange={setShowPreview}>
-          <DialogContent className="max-w-4xl h-[80vh]">
-            <DialogHeader>
-              <DialogTitle>Visual Novel Preview</DialogTitle>
-            </DialogHeader>
-            <div className="h-full w-full relative overflow-hidden rounded-lg" 
+          <TabsContent value="preview" className="mt-4">
+            <div className="h-[600px] w-full relative overflow-hidden rounded-lg border" 
               style={{ 
                 backgroundImage: previewSlide?.background ? `url(${previewSlide.background})` : 'none', 
                 backgroundSize: 'cover', 
@@ -501,9 +490,19 @@ export default VisualNovel;`;
                   {btn.label}
                 </button>
               ))}
+              {!previewSlide && (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <p>No slides to preview. Create a visual novel first.</p>
+                </div>
+              )}
             </div>
-          </DialogContent>
-        </Dialog>
+          </TabsContent>
+        </Tabs>
+
+        <Button onClick={handleCreateApp} className="w-full" size="lg">
+          <Code className="w-4 h-4 mr-2" />
+          Submit App for Review
+        </Button>
       </div>
     </div>
   );
